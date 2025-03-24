@@ -1,6 +1,5 @@
 plugins {
     alias(libs.plugins.kotlinMultiplatform)
-    alias(libs.plugins.kotlinxSerialization)
 }
 
 group = "me.user"
@@ -8,6 +7,16 @@ version = "1.0-SNAPSHOT"
 
 repositories {
     mavenCentral()
+}
+
+// ./System.setProperty("kotlin.native.home", "/Users/songzh/project/github/kotlin/kotlin-native/dist")
+System.setProperty("konan.home", "/Users/songzh/project/github/kotlin/kotlin-native/dist")
+System.setProperty("KOTLIN_NATIVE_HOME", "/Users/songzh/project/github/kotlin/kotlin-native/dist")
+
+tasks.withType<Exec>().configureEach {
+    doFirst {
+        println("Executing command: ${commandLine.joinToString(" ")}")
+    }
 }
 
 kotlin {
@@ -23,17 +32,23 @@ kotlin {
         else -> throw GradleException("Host OS is not supported in Kotlin/Native.")
     }
 
-    nativeTarget.apply {
+    val targets = nativeTarget.apply {
         binaries {
-            executable {
-                entryPoint = "main"
+            staticLib {
+                baseName = "Lib1"
+                freeCompilerArgs += listOf("-p", "taihe_static")
             }
+//
+//            executable {
+//                entryPoint = "main"
+//            }
         }
     }
+    targets
 
-    sourceSets {
-        nativeMain.dependencies {
-            implementation(libs.kotlinxSerializationJson)
-        }
-    }
+//    sourceSets {
+//        nativeMain.dependencies {
+//            implementation(libs.kotlinxSerializationJson)
+//        }
+//    }
 }
